@@ -10,6 +10,7 @@ from icalendar import Calendar
 from zoneinfo import ZoneInfo
 from pixoo import Pixoo
 from config import ICAL_URL
+from dateutil.rrule import rrulestr
 
 # ===========================================
 # KONFIGURATION - Anpassen!
@@ -57,32 +58,50 @@ def get_todays_events(calendar):
             if not dtstart:
                 continue
             
-            # Datum/Zeit konvertieren
+            # Basis-Startzeit
             start_dt = dtstart.dt
-            
-            # Falls nur Datum (ganztägiger Termin)
             if isinstance(start_dt, datetime):
-                # Zeitzone hinzufügen falls nicht vorhanden
                 if start_dt.tzinfo is None:
                     start_dt = start_dt.replace(tzinfo=tz)
                 else:
                     start_dt = start_dt.astimezone(tz)
             else:
-                # Ganztägiger Termin (date statt datetime)
-                start_dt = datetime.combine(start_dt, datetime.min.time())
-                start_dt = start_dt.replace(tzinfo=tz)
+                start_dt = datetime.combine(start_dt, datetime.min.time()).replace(tzinfo=tz)
             
-            # Prüfen ob heute
-            if today_start <= start_dt < today_end:
-                summary = str(component.get('summary', 'Kein Titel'))
-                location = component.get('location')
-                
-                events.append({
-                    'start': start_dt,
-                    'summary': summary,
-                    'location': str(location) if location else None,
-                    'is_allday': isinstance(dtstart.dt, datetime) == False
-                })
+            # Prüfen, ob RRULE vorhanden
+            rrule = component.get('rrule')
+            if rrule:
+                # RRULE expandieren
+                rrule_str = rrule.to_ical().decode('utf-8')
+                rule = rrulestr(rrule_str, dtstart=start_dt)
+                # Instanzen für heute generieren
+                for instance in rule.between(today_start, today_end - timedelta(seconds=1), inc=True):
+                    instance_tz = instance
+                    if instance_tz.tzinfo is None:
+                        instance_tz = instance_tz.replace(tzinfo=tz)
+                    else:
+                        instance_tz = instance_tz.astimezone(tz)
+                    
+                    if today_start <= instance_tz < today_end:
+                        summary = str(component.get('summary', 'Kein Titel'))
+                        location = component.get('location')
+                        events.append({
+                            'start': instance_tz,
+                            'summary': summary,
+                            'location': str(location) if location else None,
+                            'is_allday': isinstance(dtstart.dt, datetime) == False
+                        })
+            else:
+                # Einzeltermin prüfen
+                if today_start <= start_dt < today_end:
+                    summary = str(component.get('summary', 'Kein Titel'))
+                    location = component.get('location')
+                    events.append({
+                        'start': start_dt,
+                        'summary': summary,
+                        'location': str(location) if location else None,
+                        'is_allday': isinstance(dtstart.dt, datetime) == False
+                    })
     
     # Nach Startzeit sortieren
     events.sort(key=lambda x: x['start'])
@@ -155,7 +174,7 @@ def main():
             y_pos = 2
             
             # Datum als Header
-            header = datetime.now().strftime("%d.%m.")
+            header = datetime.now().strftime("%d.%m.%Y")
             pixoo.draw_text(header, (2, y_pos), COLOR_YELLOW)
             y_pos += 10
             

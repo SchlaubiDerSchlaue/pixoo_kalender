@@ -1,0 +1,10 @@
+# Persönliche Konfiguration mit privatem ICS-Link
+config.py
+
+# Python venv
+venv/
+.env/
+
+# Python cache
+__pycache__/
+*.pyc
