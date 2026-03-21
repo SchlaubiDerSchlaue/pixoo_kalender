@@ -9,13 +9,12 @@ from datetime import datetime, timedelta
 from icalendar import Calendar
 from zoneinfo import ZoneInfo
 from pixoo import Pixoo
-from config import ICAL_URL
+from config import ICAL_URL, PIXOO_IP
 from dateutil.rrule import rrulestr
 
 # ===========================================
 # KONFIGURATION - Anpassen!
 # ===========================================
-PIXOO_IP = "192.168.178.188"
 
 # Zeitzone (Deutschland)
 TIMEZONE = "Europe/Berlin"
