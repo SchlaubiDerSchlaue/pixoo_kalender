@@ -9,18 +9,12 @@ from datetime import datetime, timedelta
 from icalendar import Calendar
 from zoneinfo import ZoneInfo
 from pixoo import Pixoo
-from config import ICAL_URL, PIXOO_IP
+from config import ICAL_URL, PIXOO_IP, MAX_EVENTS, TIMEZONE, BRIGHTNESS
 from dateutil.rrule import rrulestr
 
 # ===========================================
-# KONFIGURATION - Anpassen!
+# KONFIGURATION
 # ===========================================
-
-# Zeitzone (Deutschland)
-TIMEZONE = "Europe/Berlin"
-
-# Anzahl Termine, die angezeigt werden sollen
-MAX_EVENTS = 5
 
 # Farben (RGB-Tupel)
 COLOR_YELLOW = (255, 255, 0)
@@ -124,8 +118,8 @@ def main():
         # Bildschirm einschalten
         print("   → Schalte Bildschirm ein...")
         pixoo.set_screen_on()
-        pixoo.set_brightness(80)
-        print("   ✓ Bildschirm eingeschaltet (Helligkeit: 80%)")
+        pixoo.set_brightness(BRIGHTNESS)
+        print(f"   ✓ Bildschirm eingeschaltet (Helligkeit: {BRIGHTNESS}%)")
     except Exception as e:
         print(f"   ✗ Fehler: {e}")
         return

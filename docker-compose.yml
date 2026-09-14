@@ -1,0 +1,12 @@
+services:
+  pixoo-kalender:
+    build: .
+    container_name: pixoo-kalender
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      - ICAL_URL=${ICAL_URL}
+      - PIXOO_IP=${PIXOO_IP}
+      - MAX_EVENTS=${MAX_EVENTS:-5}
+      - TIMEZONE=${TIMEZONE:-Europe/Berlin}
+      - BRIGHTNESS=${BRIGHTNESS:-80}
