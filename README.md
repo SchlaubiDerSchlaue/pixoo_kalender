@@ -18,34 +18,61 @@ Einfaches Tool, um aus einem freigegebenen Outlook-Kalender die Termine des aktu
 
 ## Installation
 
+### Mit Docker (empfohlen)
+
 1. Repository klonen oder herunterladen
-2. Virtuelle Umgebung erstellen (empfohlen):
+2. `.env.example` nach `.env` kopieren:
+   ```bash
+   cp .env.example .env
+   ```
+3. `.env` anpassen (ICS-URL, Pixoo-IP etc.)
+4. Container starten:
+   ```bash
+   docker compose up --build
+   ```
+
+Ohne Docker:
+
+1. Virtuelle Umgebung erstellen (empfohlen):
    ```bash
    python -m venv venv
    venv\Scripts\activate  # Windows
    ```
-3. Abhängigkeiten installieren:
+2. Abhängigkeiten installieren:
    ```bash
    pip install -r requirements.txt
    ```
+3. Umgebungsvariablen setzen oder `.env` laden
 
 ## Konfiguration
 
-1. `config.example.py` nach `config.py` kopieren
-2. In `config.py` den iCal-URL eintragen:
-   ```python
-   ICAL_URL = "https://outlook.office365.com/owa/calendar/.../calendar.ics"
-   ```
-3. In `pixoo_kalender.py` die IP-Adresse des Pixoo64 anpassen:
-   ```python
-   PIXOO_IP = "192.168.178.188"  # Ihre Pixoo-IP
-   ```
+Alle Einstellungen werden über **Umgebungsvariablen** gesteuert. Kopiere `.env.example` nach `.env` und passe die Werte an:
+
+| Variable | Beschreibung | Standard |
+|---|---|---|
+| `ICAL_URL` | iCal-Link vom Kalender (Outlook, Nextcloud, …) | — (required) |
+| `PIXOO_IP` | IP-Adresse des Pixoo64 im LAN | `192.168.178.188` |
+| `MAX_EVENTS` | Anzahl angezeigter Termine | `5` |
+| `TIMEZONE` | Zeitzone | `Europe/Berlin` |
+| `BRIGHTNESS` | Helligkeit 0–100 | `80` |
+
+Unter Docker liest `docker-compose.yml` automatisch die `.env`-Datei.
 
 ## Verwendung
 
-Das Skript ausführen:
+### Docker
 
 ```bash
+docker compose up --build          # einmalig starten
+docker compose up -d --build       # im Hintergrund (daemon)
+docker compose logs -f             # Logs ansehen
+```
+
+### Direkt unter Python
+
+```bash
+export ICAL_URL="https://outlook.live.com/owa/calendar/.../calendar.ics"
+export PIXOO_IP="192.168.178.188"
 python pixoo_kalender.py
 ```
 
@@ -56,17 +83,12 @@ Das Programm:
 3. Filtert die heutigen Termine
 4. Zeigt sie auf dem Display an
 
-## Anpassungen
-
-- `MAX_EVENTS`: Maximale Anzahl angezeigter Termine (Standard: 5)
-- `TIMEZONE`: Zeitzone (Standard: Europe/Berlin)
-- Farben können in den Konstanten angepasst werden
-
 ## Fehlerbehebung
 
 - Stelle sicher, dass der Pixoo64 eingeschaltet und im Netzwerk erreichbar ist
 - Überprüfe den iCal-URL (funktioniert er im Browser?)
-- Bei Zeitzonen-Problemen die TIMEZONE anpassen
+- Bei Zeitzonen-Problemen die `TIMEZONE` anpassen
+- Unter Docker: `network_mode: host` ist erforderlich, damit der Container das Pixoo im lokalen Netz findet
 
 ## Abhängigkeiten
 
