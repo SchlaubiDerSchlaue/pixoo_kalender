@@ -1,5 +1,5 @@
-# Persönliche Konfiguration mit privatem ICS-Link
-config.py
+# Environment-Datei mit sensiblen Werten (.ICS-URL)
+.env
 
 # Python venv
 venv/
